@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'DataTransformer',
-    'books_manager',
     'corsheaders',
     'django_filters'
 ]
