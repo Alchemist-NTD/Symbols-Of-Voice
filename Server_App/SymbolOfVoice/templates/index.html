@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<head>
+    <style>
+        .video-container {
+            {% comment %} position: relative; {% endcomment %}
+            display: inline-block;
+        }
+
+        .button-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            margin-top: auto;
+            margin-bottom: 25px;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+        }
+
+        #video {
+            background-image: url("https://www.handtalk.me/en/wp-content/uploads/sites/3/2022/02/014-blog_cover-lingua_universal.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: 10px solid #000;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scaleX(-1);
+        }
+
+        .button-container button {
+            margin: 5px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        #stopButton {
+            background-color: red;
+            padding-bottom: 15px;
+            padding-top: 15px;
+            padding-left: 18px;
+            padding-right: 18px;            
+            border: 3px solid #000;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        #recordButton {
+            background-color: green;
+            padding: 15px;
+            border: 3px solid #000;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            background: url("https://storage.googleapis.com/gweb-uniblog-publish-prod/images/yoodle_signtube_statement_banner3.2e16d0ba.fill-1440x810.png") no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        
+    </style>
+</head>
+<html>
+<head>
+    <title>Sign Language to Text</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Text Here</h1>
+    </div>
+    <div class="video-container">
+        <video id="video" width="640" height="480" autoplay>HELLO</video>
+        <div class="button-container">
+            <button id="recordButton" onClick="startRecording()">Record</button>
+            <button id="stopButton" onClick="stopRecording()">Stop</button>
+        </div>
+    <div>
+    
+
+    <script>
+        var recordButton = document.getElementById('recordButton');
+        var stopButton = document.getElementById('stopButton');
+        var mediaRecorder;
+        var videoElement = document.getElementById('video');
+        var mediaStream;
+        var recordedBlobs = [];
+        function startRecording() {
+            recordButton.disabled = true;
+            stopButton.disabled = false;
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(function(stream) {
+                mediaStream = stream;
+                videoElement.srcObject = stream;
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.ondataavailable = function(event) {
+                    if (event.data && event.data.size > 0) {
+                        recordedBlobs.push(event.data);
+                    }
+                };
+
+                mediaRecorder.start();
+            }).catch(function(error) {
+                console.error('Error accessing camera:', error);
+            });
+        }
+
+        function stopRecording() {
+            recordButton.disabled = false;
+            stopButton.disabled = true;
+            mediaRecorder.stop();
+            mediaRecorder.onstop = function(event) {
+                var blob = new Blob(recordedBlobs, { type: 'video/webm' });
+                var formData = new FormData();
+                formData.append('recordedVideo', blob);
+
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                }
+                videoElement.srcObject = null;
+                    // Đóng kết nối với camera
+                var videoTracks = mediaStream.getVideoTracks();
+                if (videoTracks.length > 0) {
+                    videoTracks[0].stop();
+                }
+
+                fetch('/process-video/', { method: 'POST', body: formData })
+                .then(function(response) {
+                    if (response.ok) {
+                        console.log('Video uploaded successfully.');
+                    } else {
+                        console.error('Error uploading video.');
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error uploading video:', error);
+                });
+            }
+            stream.getTracks().forEach( track => track.stop() );
+            const audioContext = new AudioContext();
+            audioContext.close;
+            const microphone = audioContext.createMediaStreamSource(media_stream);
+            microphone.disconnect;
+        }
+    </script>
+</body>
+</html>

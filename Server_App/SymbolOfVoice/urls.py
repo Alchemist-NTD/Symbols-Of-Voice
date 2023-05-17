@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from DataTransformer.views import *
+from .views import *
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('', record_video),
+    path(r'process_video/', process_video),
 ]
